@@ -1,8 +1,9 @@
 ---
-layout: posts
+layout: single
 title: Introduction to Sliced Wasserstein
 date: 2023-01-04
 categories: [AI, Sliced Wasserstein]
+tags: [AI, Sliced Wasserstein, divergence]
 ---
 One of the main goals of generative AI is to solve a model that follows the data's distribution. A common approach is to compare probability distributions and iteratively minimize the distance between the two. To compare probability distributions, we can employ the concept of [divergence](https://en.wikipedia.org/wiki/Divergence_(statistics)). KL-Divergence, one of many divergence measures, is routinely cited in literature and has applications in variational inference and GANs. KL-divergence has its drawbacks, however. For instance, the distance between two distributions on non-overlapping domains is infinite and may be computationally challenging to approximate even when overlapping [Nadjahi][1]. 
 
