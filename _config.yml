@@ -51,8 +51,8 @@ social:
 # Site Author
 author:
   name             : "Mathew J. Mathew"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "I am an **amazing** person."
+  avatar           : "/assets/images/bio-photo.jpg"
+  bio              : "**Serial** AI maven."
   location         : "Chicago, IL"
   email            : "mathew.jude.mathew@gmail.com"
   links:
@@ -244,3 +244,14 @@ defaults:
       comments: # true
       share: true
       related: true
+  # _pages
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: single
+      author_profile: true
+      read_time: # true
+      comments: # true
+      share: # true
+      related: # true
