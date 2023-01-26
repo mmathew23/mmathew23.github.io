@@ -1,9 +1,9 @@
 ---
-layout: page
+layout: single
 title: About
 permalink: /about/
 ---
-This is my personal website, and I know what you're thinking. Yes! My name is certainly Mathew Mathew. Fun fact: websites exist that prevent a copy-paste of first and last names during account registration. Gmail is the most famous example where I couldn't create an account with my real name when I first signed up. :+1F923:
+This is my personal website, and I know what you're thinking. Yes! My name is certainly Mathew Mathew. Fun fact: websites exist that prevent a copy-paste of first and last names during account registration. Gmail is the most famous example where I couldn't create an account with my real name when I first signed up. :laughing:
 
 I received an undergrad degree from Washington University in St. Louis. I shortly after obtained a Master of Science in Financial Engineering from Baruch College's Department of Mathematics to get into the quantitative side of finance. However, the degree focused much more on math than finance and served me well as I ventured into other applications of mathematics.
 
