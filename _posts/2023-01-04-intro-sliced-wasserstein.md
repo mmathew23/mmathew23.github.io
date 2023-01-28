@@ -45,12 +45,12 @@ def uniform_hypersphere(D, L, device='cpu', dtype=torch.float):
     """
     
     hypersphere = torch.randn(D, L, device=device, dtype=dtype)
-    hypersphere = hypersphere / torch.norm(hypersphere, p=2, dim=0, keepdim=True)
+    hypersphere = hypersphere / torch.norm(hypersphere, dim=0, keepdim=True)
     return hypersphere
 
-def pushforward(u, x):
+def push_forward(u, x):
     """
-        linear pushforward measure
+        linear push-forward measure
         push forward x by u, where u comes from uniform_hypersphere
         
     """
@@ -63,11 +63,11 @@ def sliced_wasserstein_distance(x, y, L, loss='l1'):
     device = y.device
     D = y.shape[-1]
     directions = uniform_hypersphere(D, L, device)
-    x_pushforward = pushforward(directions, x)
-    y_pushforward = pushforward(directions, y)
+    x_push_forward = push_forward(directions, x)
+    y_push_forward = push_forward(directions, y)
     
-    x_sort = torch.sort(x_pushforward, dim=-2)
-    y_sort = torch.sort(y_pushforward, dim=-2)
+    x_sort = torch.sort(x_push_forward, dim=-2)
+    y_sort = torch.sort(y_push_forward, dim=-2)
     
     if loss == 'l1':
         return torch.nn.functional.l1_loss(x_sort.values, y_sort.values)
@@ -103,7 +103,11 @@ sr_points, sr_color = make_swiss_roll(
 swiss_roll_points = torch.tensor(sr_points).to(torch.float)
 parameters = torch.rand_like(swiss_roll_points).requires_grad_(True)
 
-plot_points(parameters.detach().numpy(), sr_points, "Swiss Roll in Ambient Space + Init Distribution")
+plot_points(
+    parameters.detach().numpy(),
+    sr_points,
+    "Swiss Roll in Ambient Space + Init Distribution"
+)
 ```
 {% include figure image_path="/assets/images/intro-sliced-wasserstein_files/intro-sliced-wasserstein_2_0.png" alt="Graph Showing initial distribution of parameters and swiss roll" caption="Initial Distribution" %}
 
@@ -112,21 +116,29 @@ plot_points(parameters.detach().numpy(), sr_points, "Swiss Roll in Ambient Space
 This last section shows how to run the actual optimization.
 ```python
 optimizer = torch.optim.Adam([parameters], lr=1)
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, iterations, eta_min=1e-1)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+    optimizer, iterations, eta_min=1e-1
+)
 for i in range(iterations):
     optimizer.zero_grad()
-    l = sliced_wasserstein_distance(parameters, swiss_roll_points, 50, 'l1')
+    l = sliced_wasserstein_distance(
+        parameters, swiss_roll_points, 50, 'l1'
+    )
     l.backward()
     optimizer.step()
     scheduler.step()
     
-plot_points(parameters.detach().numpy(), sr_points, "Swiss Roll in Ambient Space + Final Distribution")
+plot_points(
+    parameters.detach().numpy(),
+    sr_points,
+    "Swiss Roll in Ambient Space + Final Distribution"
+)
 ```
 
 {% include figure image_path="/assets/images/intro-sliced-wasserstein_files/intro-sliced-wasserstein_3_0.png" alt="Graph Showing the final distribution of parameters and swiss roll" caption="Final Distribution" %}
 
 
-The above code shows how to sample uniform directions from the unit hypersphere, project data points onto it, and calculate the SWD. There are, however, a few drawbacks. First, we still need to decide on the number of directions to use. Increase the number for a more accurate distance metric. But, some projections map points that should be far away, close to each other. We must choose enough directions so that we get a robust signal to backpropagate. In high-dimensional problems, this becomes a potential bottleneck. In my next post, I'll discuss a way to alleviate this issue.
+The above code shows how to sample uniform directions from the unit hypersphere, project data points onto it, and calculate the SWD. There is, however, a drawback. We still need to decide on the number of directions to use. Increase the number for a more accurate distance metric. But, some projections map points that should be far away, close to each other. We must choose enough directions so that we get a robust signal to backpropagate. In high-dimensional problems, this becomes a potential bottleneck. In my next post, I'll discuss a way to alleviate this issue.
 
 
 
