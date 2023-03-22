@@ -142,6 +142,7 @@ plot_points(
 
 
 The above code shows how to sample uniform directions from the unit hypersphere, project data points onto it, and calculate the SWD. There are, however, a few drawbacks. First, we still need to decide the number of directions to use. Increase the number for a more accurate distance metric. But, some projections map points that should be far away, close to each other. We must choose enough directions to get a robust signal to backpropagate, but we could quickly run out of memory in high-dimensional problems before covering enough projections. 
+
 One variant of the above approach is the Max SWD, where we learn the best direction as part of a sub-optimization problem. By best direction, I mean one that maximizes the SWD between two sets of points. Max SWD becomes a helpful tool when memory is limited, and the speed is allowed to take a hit. There is also a connection to GAN's here. Maximizing the SWD score as a separate optimization problem is eerily close to the discriminator concept, and in fact, GAN variants employed SWD to improve generation quality. 
 I've used SWD to push state of the art in texture synthesis and continue finding new ways to apply it in other generative pipelines. Consider incorporating SWD into your training pipeline if you have generative models that could use a quality boost.
 
