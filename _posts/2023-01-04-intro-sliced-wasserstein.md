@@ -1,6 +1,7 @@
 ---
 title: Introduction to Sliced Wasserstein
 date: 2023-01-04
+last_modified_at: 2023-03-21
 categories: [AI, Sliced Wasserstein]
 # layout: posts
 tags: [AI, Sliced Wasserstein, divergence]
@@ -28,9 +29,9 @@ $$ \boldsymbol{SW}_p^p = \int_{S^{d-1}} \boldsymbol{W}_p^p(u_{\#}\mu, u_{\#}\nu)
 
 where $$u_\#$$ denotes the push-forward operator associated with $$u$$, $$\sigma$$ denotes the uniform distribution on $$S^{d-1}$$, and $$S^{d-1}$$ is the set of unit hyperspheres in $$\mathbb{R}^d$$ where $$u \in S^{d-1}$$ [Special Orthogonal Group](https://en.wikipedia.org/wiki/Orthogonal_group#Special_orthogonal_group). The push-forward operator can take many forms but the linear form is defined as $$u_\# \mu = \langle u, \mu \rangle $$ which is the inner product. Alternatively stated, the SWD is the expectation of the WD of two distributions (pushed forward by an element on the unit hypersphere) with respect to the uniform distribution on the hypersphere. The integral of the unit hypersphere is generally not feasible to calculate, but the SWD can also be approximated with a Monte Carlo approach by picking $$L$$ elements on the unit hypersphere and averaging
 
-$$ \boldsymbol{SW}_p^p = \frac{1}{L} \sum_{l=1}^{L} \boldsymbol{W}_p^p(u_{l\#}\mu, u_{l\#}\nu) $$ 
+$$ \boldsymbol{SW}_p^p \approx \frac{1}{L} \sum_{l=1}^{L} \boldsymbol{W}_p^p(u_{l\#}\mu, u_{l\#}\nu) $$ 
 
-Let's look at a toy example to illustrate how it works concretely.
+We can then substitute the univariate approximation for WD into the above equation to get the approximate SWD for 1D sets. We can view this as solving for $$ L $$ univariate problems. In practice this approximation works remarkably well.  Let's look at a toy example to illustrate how it works concretely.
 
 #### Initial Setup
 This section of code show the imports, function defintions, and initial setup of the training routine.
@@ -76,7 +77,7 @@ def sliced_wasserstein_distance(x, y, L, loss='l1'):
     else:
         raise NotImplementedError
 
-def plot_points(set1, set2, title):
+def plot_points(set1, set2, title, sr_color):
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection="3d")
 
@@ -106,7 +107,8 @@ parameters = torch.rand_like(swiss_roll_points).requires_grad_(True)
 plot_points(
     parameters.detach().numpy(),
     sr_points,
-    "Swiss Roll in Ambient Space + Init Distribution"
+    "Swiss Roll in Ambient Space + Init Distribution",
+    sr_color
 )
 ```
 {% include figure image_path="/assets/images/intro-sliced-wasserstein_files/intro-sliced-wasserstein_2_0.png" alt="Graph Showing initial distribution of parameters and swiss roll" caption="Initial Distribution" %}
@@ -131,15 +133,17 @@ for i in range(iterations):
 plot_points(
     parameters.detach().numpy(),
     sr_points,
-    "Swiss Roll in Ambient Space + Final Distribution"
+    "Swiss Roll in Ambient Space + Final Distribution",
+    sr_color
 )
 ```
 
 {% include figure image_path="/assets/images/intro-sliced-wasserstein_files/intro-sliced-wasserstein_3_0.png" alt="Graph Showing the final distribution of parameters and swiss roll" caption="Final Distribution" %}
 
 
-The above code shows how to sample uniform directions from the unit hypersphere, project data points onto it, and calculate the SWD. There is, however, a drawback. We still need to decide on the number of directions to use. Increase the number for a more accurate distance metric. But, some projections map points that should be far away, close to each other. We must choose enough directions so that we get a robust signal to backpropagate. In high-dimensional problems, this becomes a potential bottleneck. In my next post, I'll discuss a way to alleviate this issue.
-
+The above code shows how to sample uniform directions from the unit hypersphere, project data points onto it, and calculate the SWD. There are, however, a few drawbacks. First, we still need to decide the number of directions to use. Increase the number for a more accurate distance metric. But, some projections map points that should be far away, close to each other. We must choose enough directions to get a robust signal to backpropagate, but we could quickly run out of memory in high-dimensional problems before covering enough projections. 
+One variant of the above approach is the Max SWD, where we learn the best direction as part of a sub-optimization problem. By best direction, I mean one that maximizes the SWD between two sets of points. Max SWD becomes a helpful tool when memory is limited, and the speed is allowed to take a hit. There is also a connection to GAN's here. Maximizing the SWD score as a separate optimization problem is eerily close to the discriminator concept, and in fact, GAN variants employed SWD to improve generation quality. 
+I've used SWD to push state of the art in texture synthesis and continue finding new ways to apply it in other generative pipelines. Consider incorporating SWD into your training pipeline if you have generative models that could use a quality boost.
 
 
 [1]: https://hal.science/tel-03533097
